@@ -1,0 +1,76 @@
+{
+  "result_version": 1,
+  "harness_version": "0.1.0",
+  "date": "2026-07-30",
+  "environment": {
+    "codex_version": "codex-cli 0.146.0-alpha.3.1",
+    "model": "default",
+    "sandbox": "read-only",
+    "ephemeral": true
+  },
+  "suite": {
+    "cases": 12,
+    "fields_per_case": 4,
+    "categories": [
+      "routing",
+      "risk",
+      "skill-routing",
+      "negative-trigger",
+      "artifact-control"
+    ]
+  },
+  "context_weight": {
+    "always_loaded_global_bytes": 3091,
+    "always_loaded_global_words": 427,
+    "on_demand_skill_count": 4,
+    "on_demand_skill_bytes": 7923,
+    "installed_package_files": 24,
+    "installed_package_bytes": 42920
+  },
+  "baseline": {
+    "exact_cases": 9,
+    "exact_case_rate": 0.75,
+    "field_accuracy": 0.8541666666666666,
+    "average_input_tokens": 11842.25,
+    "average_output_tokens": 139.0,
+    "average_reasoning_output_tokens": 65.5,
+    "mismatch_case_ids": [
+      "standard-multifile-feature",
+      "standard-reusable-document-system",
+      "audit-governance-readonly"
+    ]
+  },
+  "treatment_run_1": {
+    "exact_cases": 12,
+    "exact_case_rate": 1.0,
+    "field_accuracy": 1.0,
+    "average_input_tokens": 13255.25,
+    "average_output_tokens": 98.41666666666667,
+    "average_reasoning_output_tokens": 21.5
+  },
+  "treatment_run_2": {
+    "exact_cases": 12,
+    "exact_case_rate": 1.0,
+    "field_accuracy": 1.0,
+    "average_input_tokens": 13266.25,
+    "average_output_tokens": 100.75,
+    "average_reasoning_output_tokens": 24.5
+  },
+  "comparison": {
+    "field_accuracy_delta": 0.14583333333333337,
+    "exact_case_rate_delta": 0.25,
+    "average_input_tokens_delta": 1413.0,
+    "average_input_tokens_delta_ratio": 0.11931854166226857
+  },
+  "gates": {
+    "treatment_exact_case_rate_min": 1.0,
+    "treatment_field_accuracy_min": 1.0,
+    "average_input_tokens_delta_max": 1800,
+    "status": "passed"
+  },
+  "limitations": [
+    "The suite tests read-only routing decisions, not full task execution quality.",
+    "The baseline and each treatment run use one sample per case.",
+    "The default model label is environment-dependent and should be pinned for release comparisons."
+  ]
+}

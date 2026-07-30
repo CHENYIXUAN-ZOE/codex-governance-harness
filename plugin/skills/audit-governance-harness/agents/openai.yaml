@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Governance Harness"
+  short_description: "Audit governance drift, weight, and coverage"
+  default_prompt: "Use $audit-governance-harness to audit this Harness and report evidence-backed improvements."

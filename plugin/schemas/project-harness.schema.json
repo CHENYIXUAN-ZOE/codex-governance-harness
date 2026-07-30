@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/codex-governance-harness/project-harness.schema.json",
+  "title": "Codex Project Harness Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "harness_version",
+    "project_name",
+    "governance_mode",
+    "domain_modules",
+    "authority",
+    "verification"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "harness_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "project_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "governance_mode": {
+      "enum": [
+        "standard",
+        "assured"
+      ]
+    },
+    "domain_modules": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "software",
+          "data",
+          "research",
+          "documents",
+          "automation",
+          "external-operations",
+          "sensitive"
+        ]
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project"
+      ],
+      "properties": {
+        "project": {
+          "$ref": "#/$defs/authorityReference"
+        },
+        "architecture": {
+          "$ref": "#/$defs/authorityReference"
+        },
+        "current_state": {
+          "$ref": "#/$defs/authorityReference"
+        },
+        "decisions": {
+          "$ref": "#/$defs/authorityReference"
+        },
+        "risks": {
+          "$ref": "#/$defs/authorityReference"
+        },
+        "plans": {
+          "$ref": "#/$defs/authorityReference"
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default"
+      ],
+      "properties": {
+        "default": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "authorityReference": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "governance_mode": {
+            "const": "assured"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "authority": {
+            "required": [
+              "risks"
+            ]
+          },
+          "verification": {
+            "properties": {
+              "default": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

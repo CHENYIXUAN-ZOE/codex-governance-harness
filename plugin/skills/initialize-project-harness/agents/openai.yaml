@@ -1,0 +1,4 @@
+interface:
+  display_name: "Initialize Project Harness"
+  short_description: "Create a minimal project governance contract"
+  default_prompt: "Use $initialize-project-harness to initialize or adapt a minimal Harness for this project."

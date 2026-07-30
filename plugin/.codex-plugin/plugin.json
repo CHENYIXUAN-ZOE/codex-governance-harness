@@ -1,0 +1,24 @@
+{
+  "name": "codex-governance-harness",
+  "version": "0.1.0",
+  "description": "Adaptive governance workflows for safe, efficient, and durable Codex project work.",
+  "author": {
+    "name": "Chenyi"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Codex Governance Harness",
+    "shortDescription": "Apply proportional governance to Codex project work.",
+    "longDescription": "Routes project work by risk and duration, initializes minimal project contracts, audits governance drift, and evolves the Harness through controlled evaluation.",
+    "developerName": "Chenyi",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Initialize a minimal Harness for this project.",
+      "Audit this project's governance and context weight.",
+      "Run this project task with proportional governance."
+    ]
+  }
+}

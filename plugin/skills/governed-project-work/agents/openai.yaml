@@ -1,0 +1,4 @@
+interface:
+  display_name: "Governed Project Work"
+  short_description: "Run persistent or high-risk project work safely"
+  default_prompt: "Use $governed-project-work to carry out this project task with proportional governance."

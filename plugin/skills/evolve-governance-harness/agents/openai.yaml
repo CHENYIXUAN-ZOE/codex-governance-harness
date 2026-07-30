@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evolve Governance Harness"
+  short_description: "Change governance through controlled evaluation"
+  default_prompt: "Use $evolve-governance-harness to evaluate and safely evolve this governance system."

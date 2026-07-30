@@ -1,0 +1,20 @@
+{
+  "name": "codex-governance-harness-local",
+  "interface": {
+    "displayName": "Codex Governance Harness (Local)"
+  },
+  "plugins": [
+    {
+      "name": "codex-governance-harness",
+      "source": {
+        "source": "local",
+        "path": "./plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
