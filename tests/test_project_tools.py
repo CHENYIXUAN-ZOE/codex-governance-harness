@@ -284,6 +284,87 @@ class ProjectToolTests(unittest.TestCase):
             report = json.loads(result.stdout)
             self.assertIn("contracts require authority.project", report["errors"])
 
+    def test_audit_without_contract_checks_existing_agents_without_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "AGENTS.md").write_text("Existing guidance\n" * 151, encoding="utf-8")
+            (root / "README.md").write_text("# Existing project\n", encoding="utf-8")
+            before = {path.name: path.read_bytes() for path in root.iterdir()}
+
+            result = self.run_auditor(root, "--json")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "not-adopted")
+            self.assertEqual(report["errors"], [])
+            self.assertIn("root AGENTS.md lines: 151", report["observations"])
+            self.assertTrue(any("exceeds 150 lines" in item for item in report["warnings"]))
+            self.assertEqual({path.name: path.read_bytes() for path in root.iterdir()}, before)
+
+    def test_audit_unconfigured_project_does_not_require_governance_files(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            result = self.run_auditor(root, "--json")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "not-adopted")
+            self.assertEqual(report["errors"], [])
+            self.assertEqual(report["warnings"], [])
+            self.assertEqual(list(root.iterdir()), [])
+
+    def test_audit_rejects_present_invalid_contract_and_keeps_checking_agents(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".harness").mkdir()
+            (root / "AGENTS.md").write_text("# Existing guidance\n", encoding="utf-8")
+            contract_path = root / ".harness/project.json"
+            for contents in (b"{", b"{}", b"[]", b"\xff"):
+                with self.subTest(contents=contents):
+                    contract_path.write_bytes(contents)
+                    result = self.run_auditor(root, "--json")
+                    self.assertEqual(result.returncode, 1, result.stderr)
+                    report = json.loads(result.stdout)
+                    self.assertEqual(report["status"], "issues")
+                    self.assertTrue(report["errors"])
+                    self.assertIn("root AGENTS.md lines: 1", report["observations"])
+                    self.assertEqual(contract_path.read_bytes(), contents)
+
+    def test_audit_broken_contract_link_is_not_treated_as_unadopted(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".harness").mkdir()
+            contract_path = root / ".harness/project.json"
+            contract_path.symlink_to("missing.json")
+            result = self.run_auditor(root, "--json")
+            self.assertEqual(result.returncode, 1, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "issues")
+            self.assertTrue(any("cannot load contract" in item for item in report["errors"]))
+            self.assertTrue(contract_path.is_symlink())
+            self.assertFalse((root / ".harness/missing.json").exists())
+
+    def test_audit_accepts_multiple_concerns_in_one_authority_file(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            initialized = self.run_initializer(
+                root,
+                "--project-summary",
+                "One concise project authority.",
+                "--verification",
+                "python -m unittest",
+                "--apply",
+            )
+            self.assertEqual(initialized.returncode, 0, initialized.stderr)
+            contract_path = root / ".harness/project.json"
+            contract = json.loads(contract_path.read_text(encoding="utf-8"))
+            contract["authority"]["architecture"] = "PROJECT.md"
+            contract["authority"]["current_state"] = "PROJECT.md"
+            contract_path.write_text(json.dumps(contract), encoding="utf-8")
+            result = self.run_auditor(root, "--json")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "healthy")
+            self.assertEqual(report["warnings"], [])
+
     def test_source_check_passes(self) -> None:
         result = subprocess.run(
             [sys.executable, str(SOURCE_CHECK)],

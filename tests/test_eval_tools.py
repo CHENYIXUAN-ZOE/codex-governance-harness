@@ -30,9 +30,10 @@ class EvalToolTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         report = json.loads(result.stdout)
-        self.assertEqual(report["case_count"], 12)
+        suite = json.loads((REPO_ROOT / "evals/routing-cases.json").read_text())
+        self.assertEqual(report["case_count"], len(suite["cases"]))
         self.assertTrue(report["context_weight"]["within_limits"])
-        self.assertEqual(report["context_weight"]["on_demand_skill_count"], 4)
+        self.assertEqual(report["context_weight"]["on_demand_skill_count"], 5)
 
     def test_summary_compares_exact_fields(self) -> None:
         runner = load_runner_module()

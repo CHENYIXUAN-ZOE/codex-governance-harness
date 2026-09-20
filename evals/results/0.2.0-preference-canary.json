@@ -1,0 +1,97 @@
+{
+  "model": "gpt-6-astra",
+  "isolated": true,
+  "purpose": "Explicit preference write followed by an independent task with no reminder to retrieve it.",
+  "sessions": [
+    {
+      "session": 1,
+      "prompt": "请读 PROJECT.md 后给出方案建议。我有一个长期偏好：以后比较方案时先给推荐和关键理由，再展开备选方案；请用已安装的学习机制记住这个工作习惯。只操作这个隔离环境，不联网，不修改项目内容。",
+      "response": "推荐**方案 A：复用现有组件**。根据 PROJECT.md，原型下周交付，A 只需两天，更有余量用于验证和修复；项目是单机内部原型，没有跨设备同步需求，目前没有充分理由引入新框架。\n\n备选方案 B 需要七天，交付余量明显更小。只有确认现有组件无法满足核心需求，或新框架带来交付必需的能力时，才值得重新评估。\n\n建议先用 A 跑通核心流程，再利用剩余时间完成演示验证和问题修复。\n\n已通过安装的学习机制记住：“比较方案时先给推荐和关键理由，再展开备选方案。”已存入隔离环境的 [preferences.json](/private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-k_aesn0a/home/.codex/governance-harness/preferences.json)。全程未联网，未修改项目内容。",
+      "returncode": 0,
+      "commands": [
+        {
+          "command": "/bin/zsh -lc \"pwd; rg --files -g 'AGENTS.md' -g 'PROJECT.md'; cat /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-k_aesn0a/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/SKILL.md\"",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc 'cat PROJECT.md; printenv CODEX_HOME; python3 /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-k_aesn0a/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/scripts/preferences.py list --category communication'",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc \"python3 /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-k_aesn0a/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/scripts/preferences.py record --scope global --key recommendation-first --category communication --value '比较方案时先给推荐方案和关键理由，再展开备选方案。' --when '提供方案比较或选型建议时。' --source-summary '用户明确要求将推荐和关键理由优先的方案比较顺序记为长期工作偏好。' --evidence explicit --event-id isolated-project-advice-20260920:turn1:recommendation-first --context-id isolated-project-advice-20260920 --apply\"",
+          "exit_code": 0
+        }
+      ],
+      "preferences": [
+        {
+          "key": "recommendation-first",
+          "scope": {
+            "kind": "global"
+          },
+          "category": "communication",
+          "value": "比较方案时先给推荐方案和关键理由，再展开备选方案。",
+          "when": "提供方案比较或选型建议时。",
+          "status": "explicit",
+          "active": true,
+          "created_at": "2026-09-20T02:40:11+00:00",
+          "updated_at": "2026-09-20T02:40:11+00:00",
+          "sources": [
+            {
+              "context": "95b5e6b2c4cefc382f7d206c5f17236d83839fdeb0d22d448409f7576bbdddcd",
+              "evidence": "explicit",
+              "summary": "用户明确要求将推荐和关键理由优先的方案比较顺序记为长期工作偏好。",
+              "at": "2026-09-20T02:40:11+00:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": 2,
+      "prompt": "请根据 PROJECT.md 比较方案 A 和 B，给出适合目前项目的建议。只读完成，不联网。",
+      "response": "**建议选择方案 A。** 当前项目是下周交付的单机内部原型，A 只需两天，更能留出测试和修正时间；目前没有足够理由承担 B 的七天工期和新框架引入风险。\n\n根据 [PROJECT.md](/private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-k_aesn0a/project/PROJECT.md)：\n\n| 比较项 | 方案 A | 方案 B |\n|---|---|---|\n| 实现方式 | 复用现有组件 | 引入新框架 |\n| 预计耗时 | 两天 | 七天 |\n| 交付余量 | 较充足 | 较紧张 |\n| 当前收益依据 | 支持快速完成原型 | 文档未说明额外收益 |\n\n项目没有跨设备同步需求，不应为尚未提出的需求增加当前成本。除非确认现有组件无法满足核心功能，否则优先用 A 完成交付，再根据实际需求评估 B。\n\n已只读完成，未联网或修改文件。",
+      "returncode": 0,
+      "commands": [
+        {
+          "command": "/bin/zsh -lc \"pwd; rg --files -g 'PROJECT.md' -g 'AGENTS.md' -g '\"'!node_modules'\"' -g '\"'!vendor'\"'\"",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc 'cat /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-k_aesn0a/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/SKILL.md'",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc 'cat PROJECT.md; for p in /AGENTS.md /private/AGENTS.md /private/var/AGENTS.md /private/var/folders/AGENTS.md /private/var/folders/z9/AGENTS.md /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/AGENTS.md ../AGENTS.md AGENTS.md; do if [ -f \"$p\" ]; then cat \"$p\"; fi; done'",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc 'python3 /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-k_aesn0a/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/scripts/preferences.py list --project /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-k_aesn0a/project'",
+          "exit_code": 0
+        }
+      ],
+      "preferences": [
+        {
+          "key": "recommendation-first",
+          "scope": {
+            "kind": "global"
+          },
+          "category": "communication",
+          "value": "比较方案时先给推荐方案和关键理由，再展开备选方案。",
+          "when": "提供方案比较或选型建议时。",
+          "status": "explicit",
+          "active": true,
+          "created_at": "2026-09-20T02:40:11+00:00",
+          "updated_at": "2026-09-20T02:40:11+00:00",
+          "sources": [
+            {
+              "context": "95b5e6b2c4cefc382f7d206c5f17236d83839fdeb0d22d448409f7576bbdddcd",
+              "evidence": "explicit",
+              "summary": "用户明确要求将推荐和关键理由优先的方案比较顺序记为长期工作偏好。",
+              "at": "2026-09-20T02:40:11+00:00"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

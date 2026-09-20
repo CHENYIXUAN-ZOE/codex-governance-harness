@@ -1,28 +1,23 @@
 ---
 name: governed-project-work
-description: Run persistent, multi-file, multi-stage, cross-session, or high-impact project work with proportional governance, targeted context loading, scoped implementation, and evidence-backed completion. Use for Standard or Assured project tasks, especially when a project Harness or authority map exists. Do not use for simple questions or low-risk one-off edits that fit Lite operation.
+description: Guide project work needing durable decisions, cross-session recovery, coordination, or controls for consequential actions. Use existing project authorities; skip this workflow for bounded routine work.
 ---
 
 # Governed Project Work
 
 Apply the smallest governance process that keeps the task scoped, recoverable, and verifiable.
 
-## Workflow
+## Apply only what this task needs
 
-1. Read applicable global, project, and nested instructions.
-2. Inspect the project Harness or existing authority map without assuming a fixed directory layout.
-3. Classify the work as Standard or Assured using `references/operating-modes.md`.
-4. Establish the task contract: outcome, scope, constraints, material assumptions, and completion evidence.
-5. Load only the sources required by `references/context-routing.md`.
-6. Plan in proportion to uncertainty and impact. Keep short plans in the task; persist plans only for cross-session or coordination needs.
-7. Make scoped changes, preserve unrelated work, and keep the working state understandable.
-8. Verify with the strongest relevant evidence available. Use `references/completion-evidence.md`.
-9. Update durable project state only when the task changes an existing authority or creates information future work must recover.
-10. Report the outcome, evidence, limitations, remaining risks, and next durable state.
+- Establish the requested outcome, material constraints, and sufficient completion evidence from the user's request and existing project authorities. This does not require a new document or another approval round.
+- Consult `references/operating-modes.md` only when the level of control is unclear; `references/context-routing.md` when locating or reconciling sources; and `references/completion-evidence.md` when choosing validation. Do not read every reference by default.
+- Use a plan or durable state only when coordination or recovery needs it. Continue authorized implementation and verification until the outcome is met or a concrete blocker remains.
+- Reassess challenges using relevant project evidence. Apply recorded corrections at their stated scope; see `references/feedback-and-preferences.md` when deciding whether and where new feedback should persist.
+- Update existing project authorities when established decisions, explicit durable corrections, or recovery needs materially change. Label proposals as proposals until adopted; do not promote your recommendation into an approved fact. Report the outcome, verification limits, and any saved correction without a ritual checklist.
 
 ## Assured work
 
-For Assured work, also read `references/assured-controls.md`. Do not treat higher governance intensity as permission to broaden access.
+For consequential actions, read `references/assured-controls.md`. Higher governance intensity grants no additional permission and does not block independent preparation.
 
 ## Degraded operation
 

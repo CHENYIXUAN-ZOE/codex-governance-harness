@@ -7,7 +7,13 @@
 - 全局 Harness：提供跨项目的最小不变量、风险路由和默认工作方式。
 - 项目级 Harness：保存项目自己的事实来源、约束、流程和完成标准。
 
-当前状态：`0.1.0` 已完成源码、项目工具、行为评测和受控全局安装，进入真实任务观察阶段。
+当前版本：`0.2.0`。当前部署状态与验证限制见 [NOW.md](docs/status/NOW.md)。
+
+新增的偏好学习机制将反馈保存在运行时偏好库，按作用范围和证据强度调用、修正和停用；不需要为每个习惯重写全局规则。机制说明见 [ADR-0004](docs/decisions/ADR-0004-adaptive-preferences.md)。
+
+需要分享这一项机制时，运行 `python3 -B scripts/build_preference_bundle.py`，生成 `dist/codex-preference-learning-0.2.0.zip`。构建只读取通用源码，不读取真实偏好或账号。分享包说明源文件位于 [share/preference-learning](share/preference-learning/README.md)，其中安装文档的技能相对链接在生成后的压缩包内解析。
+
+直接下载：[个人偏好学习包 0.2.0](https://github.com/CHENYIXUAN-ZOE/codex-governance-harness/releases/download/v0.2.0/codex-preference-learning-0.2.0.zip)。解压后交给接收方自己的 Codex，按包内 README 发起安装。适用于 macOS、Linux 或 WSL；仅包含学习机制，不包含制作者的偏好数据，也不要求安装完整 Harness。版本说明见 [Release v0.2.0](https://github.com/CHENYIXUAN-ZOE/codex-governance-harness/releases/tag/v0.2.0)。
 
 ## 使用边界
 
@@ -44,7 +50,7 @@ python3 -B scripts/manage_install.py install
 ## 目录
 
 ```text
-global/       将来部署到全局 AGENTS.md 的治理内核源文件
+global/       部署到全局 AGENTS.md 的治理内核源文件
 plugin/       精简的可安装运行包：manifest、Skills、schema、模板与共享库
 docs/         架构、决策、风险、路线图和当前状态
 evals/        代表性路由案例、输出契约和版本化结果摘要

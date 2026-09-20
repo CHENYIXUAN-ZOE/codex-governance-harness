@@ -38,7 +38,7 @@
 
 ### 项目契约
 
-Standard 和 Assured 项目使用 `.harness/project.json` 作为轻量、版本化的机器契约。契约只包含：
+Standard 和 Assured 项目可在机器检查或恢复确有收益时采用 `.harness/project.json`。已有项目指引充分时不要求新建契约，缺少契约表示未采用该格式，不表示治理失败。已采用的契约只包含：
 
 - schema 与 Harness 版本；
 - 治理强度和可组合领域模块；
@@ -46,6 +46,10 @@ Standard 和 Assured 项目使用 `.harness/project.json` 作为轻量、版本�
 - 默认验证命令。
 
 契约采用 JSON，以便核心初始化与审计工具仅依赖 Python 标准库。Lite 不创建持久契约；Assured 必须声明风险权威来源和至少一个验证命令。
+
+### 偏好学习
+
+全局内核规定判断、学习和权限边界；`learn-user-preferences` 提供用户授权的低风险偏好检索、观察、修正和撤销。偏好记录保存在运行目录，与版本化治理源码分离，不为每条反馈改写全局提示词。项目事实继续由项目自己的权威来源维护。机制、范围和证据门槛见 [ADR-0004](../decisions/ADR-0004-adaptive-preferences.md)。
 
 ## 实现分层
 

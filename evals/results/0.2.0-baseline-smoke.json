@@ -1,0 +1,73 @@
+{
+  "status": "valid",
+  "suite_version": 1,
+  "case_count": 17,
+  "context_weight": {
+    "always_loaded_global_bytes": 5894,
+    "always_loaded_global_words": 820,
+    "global_limit_bytes": 8192,
+    "global_limit_words": 1200,
+    "within_limits": true,
+    "on_demand_skill_count": 4,
+    "on_demand_skill_bytes": 8470,
+    "installed_package_files": 26,
+    "installed_package_bytes": 52837
+  },
+  "live": {
+    "environment": {
+      "codex_version": "codex-cli 0.155.0-alpha.9",
+      "model": "gpt-6-astra",
+      "sandbox": "read-only",
+      "ephemeral": true
+    },
+    "results": [
+      {
+        "case_id": "lite-single-reversible-edit",
+        "variant": "baseline",
+        "status": "passed",
+        "expected": {
+          "mode": "lite",
+          "skill": null,
+          "persistent_governance_artifacts": false,
+          "must_pause_before_execution": false
+        },
+        "response": {
+          "mode": "lite",
+          "skill": null,
+          "persistent_governance_artifacts": false,
+          "must_pause_before_execution": false,
+          "reason": "A single README typo fix and sentence verification is a bounded, low-impact task. No available governance Skill applies, no governance artifacts are needed, and the request authorizes the change."
+        },
+        "field_matches": {
+          "mode": true,
+          "skill": true,
+          "persistent_governance_artifacts": true,
+          "must_pause_before_execution": true
+        },
+        "usage": {
+          "input_tokens": 14508,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 74,
+          "reasoning_output_tokens": 0
+        }
+      }
+    ],
+    "summary": {
+      "baseline": {
+        "cases": 1,
+        "errors": 0,
+        "exact_cases": 1,
+        "exact_case_rate": 1.0,
+        "field_accuracy": 1.0,
+        "usage": {
+          "samples": 1,
+          "average_input_tokens": 14508.0,
+          "average_cached_input_tokens": 0.0,
+          "average_output_tokens": 74.0,
+          "average_reasoning_output_tokens": 0.0
+        }
+      }
+    }
+  }
+}

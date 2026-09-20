@@ -1,0 +1,64 @@
+{
+  "result_version": 1,
+  "harness_version": "0.2.0",
+  "date": "2026-09-20",
+  "environment": {
+    "model": "gpt-6-astra",
+    "codex_version": "0.155.0-alpha.9"
+  },
+  "gates": {
+    "status": "passed",
+    "scope": "candidate behavior and isolated safety; live deployment is recorded separately"
+  },
+  "evidence": {
+    "deterministic_tests": {
+      "total": 43,
+      "passed": 43,
+      "source_check": "passed",
+      "ruff_lint": "passed",
+      "ruff_format": "passed"
+    },
+    "official_plugin_validator": "passed",
+    "official_skill_validators": {
+      "passed": 5
+    },
+    "independent_judgment_scenarios": {
+      "reviewed": 5,
+      "acceptable": 5,
+      "artifact": "0.2.0-judgment.md"
+    },
+    "explicit_memory_canary": {
+      "fresh_sessions": 2,
+      "saved_preference": true,
+      "unprompted_retrieval_next_session": true,
+      "artifact": "0.2.0-preference-canary.json"
+    },
+    "routing_smoke": {
+      "initial_exact": 2,
+      "cases": 4,
+      "artifact": "0.2.0-routing-initial.json",
+      "rubric_review": "Local artifact preparation is valid Lite; requested preference persistence is a persistent governance artifact. Both initial label mismatches preserved and expected labels clarified. No model rule changed to force the labels."
+    },
+    "inferred_memory_canary": {
+      "fresh_sessions": 3,
+      "first_correction": "candidate",
+      "second_independent_correction": "promoted",
+      "third_session_unprompted_retrieval": true,
+      "artifact": "0.2.0-inferred-preference-canary.json"
+    }
+  },
+  "limitations": [
+    "No full baseline/treatment performance comparison for this release.",
+    "Fresh-task canaries and deterministic memory transitions do not establish long-term recall reliability.",
+    "Adaptive preference learning requires agent invocation; no background listener is installed.",
+    "Disabled records are retained for inspection and undo, not erased."
+  ],
+  "deployment": {
+    "status": "installed",
+    "transaction": "20260920T025054Z-a6e931ca",
+    "doctor": "healthy",
+    "payload_hashes_match": true,
+    "unrelated_config_semantics_unchanged": true,
+    "fresh_task_discovered_skills": 5
+  }
+}

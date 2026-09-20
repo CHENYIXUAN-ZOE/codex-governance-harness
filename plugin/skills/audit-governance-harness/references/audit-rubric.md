@@ -3,8 +3,10 @@
 ## Authority
 
 - Does each concern have one current authority?
+- Several concerns may share one file. Look for conflicting authorities for the same concern, not repeated paths in the map.
 - Do instructions, Skills, config, and project facts have clear boundaries?
 - Are conflicts surfaced and resolved explicitly?
+- Is a machine-readable project contract useful here? Its absence means not adopted, not broken governance; assess existing project sources directly.
 
 ## Weight
 

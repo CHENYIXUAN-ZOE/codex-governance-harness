@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
@@ -40,48 +39,39 @@ def audit_project(project_root: Path) -> Dict[str, Any]:
         }
 
     contract_path = root / ".harness/project.json"
-    if not contract_path.exists():
-        errors.append("missing .harness/project.json")
-        return {
-            "project": str(root),
-            "status": "issues",
-            "errors": errors,
-            "warnings": warnings,
-            "observations": observations,
-        }
-
-    try:
-        contract = load_contract(contract_path)
-    except ContractError as exc:
-        errors.append(str(exc))
-        contract = {}
-
-    if contract:
-        errors.extend(validate_contract(contract, root, check_paths=True))
-        authority = contract.get("authority", {})
-        if isinstance(authority, dict):
-            by_target: Dict[str, List[str]] = defaultdict(list)
-            for key, value in authority.items():
-                if isinstance(value, str):
-                    by_target[value].append(key)
-            for target, keys in sorted(by_target.items()):
-                if len(keys) > 1:
-                    warnings.append(f"authority target is reused by {', '.join(keys)}: {target}")
-
-        verification = contract.get("verification", {}).get("default", [])
-        if contract.get("governance_mode") == "standard" and not verification:
-            warnings.append("Standard contract has no default verification commands")
+    contract_adopted = contract_path.exists() or contract_path.is_symlink()
+    if not contract_adopted:
+        observations.append("project contract not adopted; only root AGENTS.md is checked")
+    else:
+        try:
+            contract = load_contract(contract_path)
+        except (ContractError, UnicodeError) as exc:
+            errors.append(str(exc))
+        else:
+            contract_errors = validate_contract(contract, root, check_paths=True)
+            errors.extend(contract_errors)
+            if not contract_errors:
+                verification = contract["verification"]["default"]
+                if contract["governance_mode"] == "standard" and not verification:
+                    warnings.append("Standard contract has no default verification commands")
 
     agents_path = root / "AGENTS.md"
-    if not agents_path.exists():
-        warnings.append("missing root AGENTS.md")
+    if not agents_path.exists() and not agents_path.is_symlink():
+        if contract_adopted:
+            warnings.append("missing root AGENTS.md")
+        else:
+            observations.append("no root AGENTS.md to check")
     else:
-        line_count = len(agents_path.read_text(encoding="utf-8").splitlines())
-        observations.append(f"root AGENTS.md lines: {line_count}")
-        if line_count > 150:
-            warnings.append("root AGENTS.md exceeds 150 lines; review context weight")
+        try:
+            line_count = len(agents_path.read_text(encoding="utf-8").splitlines())
+        except (OSError, UnicodeError) as exc:
+            errors.append(f"cannot read root AGENTS.md: {exc}")
+        else:
+            observations.append(f"root AGENTS.md lines: {line_count}")
+            if line_count > 150:
+                warnings.append("root AGENTS.md exceeds 150 lines; review context weight")
 
-    status = "healthy" if not errors else "issues"
+    status = "issues" if errors else "healthy" if contract_adopted else "not-adopted"
     return {
         "project": str(root),
         "status": status,
@@ -107,7 +97,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(json.dumps(report, ensure_ascii=False, indent=2))
     else:
         print(render_human(report))
-    return 0 if report["status"] == "healthy" else 1
+    return 1 if report["errors"] else 0
 
 
 if __name__ == "__main__":

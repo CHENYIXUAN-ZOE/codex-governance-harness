@@ -52,6 +52,26 @@ class InstallToolTests(unittest.TestCase):
             check=False,
         )
 
+    def test_finder_metadata_does_not_block_validation_or_get_removed(self) -> None:
+        manager = load_manager_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            plugin = root / "plugin"
+            shutil.copytree(REPO_ROOT / "plugin", plugin)
+            metadata = plugin / ".DS_Store"
+            nested_metadata = plugin / "skills/.DS_Store"
+            metadata.write_bytes(b"finder metadata")
+            nested_metadata.write_bytes(b"nested finder metadata")
+            with mock.patch.object(manager, "PLUGIN_ROOT", plugin):
+                source = manager.source_info()
+                self.assertIn(".DS_Store", source["metadata_files"])
+                self.assertIn("skills/.DS_Store", source["metadata_files"])
+                self.assertEqual(metadata.read_bytes(), b"finder metadata")
+                self.assertEqual(nested_metadata.read_bytes(), b"nested finder metadata")
+                (plugin / "unexpected-content").write_text("unexpected", encoding="utf-8")
+                with self.assertRaisesRegex(manager.InstallError, "unexpected-content"):
+                    manager.source_info()
+
     @unittest.skipUnless(CODEX_AVAILABLE, "Codex CLI is required")
     def test_dry_run_install_has_no_side_effects(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -155,6 +175,22 @@ class InstallToolTests(unittest.TestCase):
             )
 
     @unittest.skipUnless(CODEX_AVAILABLE, "Codex CLI is required")
+    def test_removal_preserves_personal_preferences(self) -> None:
+        for command in ("uninstall", "rollback"):
+            with self.subTest(command=command), tempfile.TemporaryDirectory() as directory:
+                user_home = Path(directory) / "home"
+                codex_home = user_home / ".codex"
+                preference_path = codex_home / "governance-harness/preferences.json"
+                preference_path.parent.mkdir(parents=True)
+                preferences = b'{"preferences": [{"id": "keep-my-judgment"}]}\n'
+                preference_path.write_bytes(preferences)
+                installed = self.run_manager("install", codex_home, user_home, apply=True)
+                self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
+                removed = self.run_manager(command, codex_home, user_home, apply=True)
+                self.assertEqual(removed.returncode, 0, removed.stdout + removed.stderr)
+                self.assertEqual(preference_path.read_bytes(), preferences)
+
+    @unittest.skipUnless(CODEX_AVAILABLE, "Codex CLI is required")
     def test_tampered_managed_block_refuses_uninstall(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             user_home = Path(directory) / "home"
@@ -218,6 +254,98 @@ class InstallToolTests(unittest.TestCase):
                 json.loads(records[0].read_text(encoding="utf-8"))["status"],
                 "failed-rolled-back",
             )
+
+    def test_old_state_without_registration_can_be_removed_before_reinstall(self) -> None:
+        manager = load_manager_module()
+        with tempfile.TemporaryDirectory() as directory:
+            user_home = Path(directory).resolve() / "home"
+            codex_home = user_home / ".codex"
+            codex_home.mkdir(parents=True)
+            source = manager.source_info()
+            old_source = dict(source)
+            old_source["version"] = "0.1.0"
+            old_source["global_block"] = source["global_block"].replace(
+                f"version={source['version']}", "version=0.1.0", 1
+            )
+            agents_path = codex_home / "AGENTS.md"
+            agents_path.write_text("# Existing preferences\n", encoding="utf-8")
+            config_path = codex_home / "config.toml"
+            config = 'model = "user-selected-model"\n'
+            config_path.write_text(config, encoding="utf-8")
+            plan = manager.plan_install(
+                old_source, {"marketplace": None, "plugin": None}, codex_home
+            )
+            with mock.patch.object(manager, "run_codex", return_value={}):
+                manager.apply_install(plan, old_source, "codex", codex_home, user_home)
+            agents_path.write_text(
+                "# Added before\n" + agents_path.read_text(encoding="utf-8") + "# Added after\n",
+                encoding="utf-8",
+            )
+
+            removal = manager.removal_plan(
+                source, {"marketplace": None, "plugin": None}, codex_home
+            )
+            self.assertTrue(any("0.1.0" in item for item in removal["warnings"]))
+            before = agents_path.read_text(encoding="utf-8")
+            agents_path.write_text(
+                before.replace("# Personal Governance Defaults", "# Changed rules"),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(manager.InstallError, "block changed"):
+                manager.removal_plan(source, {"marketplace": None, "plugin": None}, codex_home)
+            agents_path.write_text(before, encoding="utf-8")
+            with mock.patch.object(manager, "run_codex") as cli:
+                manager.apply_removal(
+                    removal, source, "codex", codex_home, user_home, "uninstalled"
+                )
+                cli.assert_not_called()
+            self.assertEqual(
+                agents_path.read_text(encoding="utf-8"),
+                "# Added before\n# Existing preferences\n# Added after\n",
+            )
+            self.assertEqual(config_path.read_text(encoding="utf-8"), config)
+            self.assertFalse(manager.active_state_path(codex_home).exists())
+            new_plan = manager.plan_install(
+                source, {"marketplace": None, "plugin": None}, codex_home
+            )
+            self.assertEqual(new_plan["status"], "planned")
+            if CODEX_AVAILABLE:
+                installed = self.run_manager("install", codex_home, user_home, apply=True)
+                self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
+                doctor = self.run_manager("doctor", codex_home, user_home)
+                self.assertEqual(doctor.returncode, 0, doctor.stdout + doctor.stderr)
+                removed = self.run_manager("uninstall", codex_home, user_home, apply=True)
+                self.assertEqual(removed.returncode, 0, removed.stdout + removed.stderr)
+                self.assertEqual(
+                    agents_path.read_text(encoding="utf-8"), removal["_agents_restored"]
+                )
+                self.assertEqual(config_path.read_text(encoding="utf-8"), config)
+
+    def test_removal_refuses_registered_old_plugin_or_changed_marketplace(self) -> None:
+        manager = load_manager_module()
+        with tempfile.TemporaryDirectory() as directory:
+            user_home = Path(directory).resolve() / "home"
+            codex_home = user_home / ".codex"
+            codex_home.mkdir(parents=True)
+            source = manager.source_info()
+            plan = manager.plan_install(source, {"marketplace": None, "plugin": None}, codex_home)
+            with mock.patch.object(manager, "run_codex", return_value={}):
+                manager.apply_install(plan, source, "codex", codex_home, user_home)
+            new_source = dict(source, version="99.0.0")
+            plugin_state = {"version": source["version"]}
+            with self.assertRaisesRegex(manager.InstallError, "exact old package"):
+                manager.removal_plan(
+                    new_source, {"marketplace": None, "plugin": plugin_state}, codex_home
+                )
+            with self.assertRaisesRegex(manager.InstallError, "marketplace source has changed"):
+                manager.removal_plan(
+                    source,
+                    {
+                        "marketplace": {"marketplaceSource": {"source": directory}},
+                        "plugin": None,
+                    },
+                    codex_home,
+                )
 
     def test_root_codex_home_is_refused(self) -> None:
         result = subprocess.run(

@@ -9,6 +9,8 @@ Produce an evidence-backed audit before proposing changes.
 
 Use `scripts/audit_project.py` for the deterministic project-contract and local-authority checks. It is read-only.
 
+A project contract is optional. Without `.harness/project.json`, the script reports `not-adopted`, exits successfully, and still checks an existing root `AGENTS.md`; this is not a finding of unhealthy governance or a reason to initialize a contract. An explicitly present but invalid contract still fails. Several concerns may share one authority file; duplication means competing sources for the same concern, not repeated file paths.
+
 ## Workflow
 
 1. Confirm whether the target is source, installed global state, a project Harness, or all three.
@@ -24,7 +26,7 @@ Use `scripts/audit_project.py` for the deterministic project-contract and local-
 7. Recommend the smallest effective action, including deletion when a component has no demonstrated value.
 8. If the user requested fixes, apply scoped changes and rerun the relevant checks. Otherwise stop after the report.
 
-The script validates structure and references but does not execute project verification commands. Run relevant verification separately when the audit scope includes behavioral correctness.
+The script validates structure and references but does not execute project verification commands or prove overall governance health. Inspect the project's existing authority sources for concerns outside its checks. Run relevant verification separately when the audit scope includes behavioral correctness.
 
 ## Audit output
 

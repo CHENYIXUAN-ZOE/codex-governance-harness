@@ -1,0 +1,4 @@
+interface:
+  display_name: "Learn User Preferences"
+  short_description: "Learn and revise scoped preferences from feedback"
+  default_prompt: "Use $learn-user-preferences to retrieve relevant preferences and learn carefully from my feedback."

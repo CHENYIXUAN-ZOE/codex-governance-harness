@@ -1,0 +1,156 @@
+{
+  "model": "gpt-6-astra",
+  "isolated": true,
+  "purpose": "Feedback without an explicit save request, independent corrective feedback, then unprompted retrieval in a third new task.",
+  "sessions": [
+    {
+      "session": 1,
+      "prompt": "你给方案建议时又把一大堆选项摆在前面让我选。我看这类建议主要想先知道你推荐哪个、依据是什么，其他选择后面再说。请按 PROJECT.md 重新给我建议。只处理这个隔离环境，不联网，不修改项目内容。",
+      "response": "**推荐方案 A：复用现有组件。** 根据 [PROJECT.md](PROJECT.md)，这是下周交付的单机内部原型，没有跨设备同步需求。A 需要两天，能留出更多验证和修正时间，更符合当前交付目标。\n\n方案 B 需要七天，还要引入新框架；当前需求没有体现出值得为此增加工期的收益，暂不推荐。\n\n已将“先推荐和依据，再说其他选择”记录为隔离环境内的候选偏好，保存在 `CODEX_HOME/governance-harness/preferences.json`。未联网，未修改项目内容。",
+      "returncode": 0,
+      "commands": [
+        {
+          "command": "/bin/zsh -lc \"pwd; rg --files -g 'PROJECT.md' -g 'AGENTS.md'; cat /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-yrfaf88b/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/SKILL.md\"",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc 'cat PROJECT.md; printenv CODEX_HOME; python3 /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-yrfaf88b/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/scripts/preferences.py list --project /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-yrfaf88b/project --category communication --details'",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc 'python3 /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-yrfaf88b/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/scripts/preferences.py record --help'",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc \"python3 /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-yrfaf88b/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/scripts/preferences.py record --scope global --key recommendation-first --category communication --value '给方案建议时先给出推荐方案和依据，再补充其他选择。' --when '提供方案建议或比较可选方案时。' --source-summary '用户纠正先罗列大量选项的建议方式，要求先说明推荐及依据。' --evidence correction --event-id 'yrfaf88b:recommendation-feedback:1' --context-id 'yrfaf88b:project-recommendation' --apply\"",
+          "exit_code": 0
+        }
+      ],
+      "preferences": [
+        {
+          "key": "recommendation-first",
+          "scope": {
+            "kind": "global"
+          },
+          "category": "communication",
+          "value": "给方案建议时先给出推荐方案和依据，再补充其他选择。",
+          "when": "提供方案建议或比较可选方案时。",
+          "status": "candidate",
+          "active": true,
+          "created_at": "2026-09-20T02:45:19+00:00",
+          "updated_at": "2026-09-20T02:45:19+00:00",
+          "sources": [
+            {
+              "context": "de84becd64707e8a125d15d8da567180c9026bbaa2954bb578de55247e0d5291",
+              "evidence": "correction",
+              "summary": "用户纠正先罗列大量选项的建议方式，要求先说明推荐及依据。",
+              "at": "2026-09-20T02:45:19+00:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": 2,
+      "prompt": "这次还是同样的问题：比较方案时我需要你先给一个有依据的推荐，别先把选项堆给我。我平时处理其他项目也这样看。请读 PROJECT.md 给建议。只处理这个隔离环境，不联网，不修改项目内容。",
+      "response": "**推荐方案 A：复用现有组件。** 根据 [PROJECT.md](PROJECT.md)，这是下周交付的单机内部原型，没有跨设备同步需求。A 预计两天完成，相比需要七天的 B，能多留五天用于验证和修复，更符合当前交付目标。\n\nB 引入新框架，但文档没有给出它能解决的必要需求，因此目前没有足够依据承担额外工期。\n\n已在隔离环境的 `governance-harness/preferences.json` 更新跨项目偏好：比较方案时先给推荐及依据，再补充其他选择。未联网，未修改项目内容。",
+      "returncode": 0,
+      "commands": [
+        {
+          "command": "/bin/zsh -lc \"pwd; rg --files -g 'AGENTS.md' -g 'PROJECT.md'; cat /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-yrfaf88b/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/SKILL.md\"",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc 'cat PROJECT.md\nprintenv CODEX_HOME\npython3 /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-yrfaf88b/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/scripts/preferences.py list --category communication --details'",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc \"python3 /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-yrfaf88b/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/scripts/preferences.py record --scope global --key recommendation-first --category communication --value '给方案建议时先给出推荐方案和依据，再补充其他选择。' --when '提供方案建议或比较可选方案时。' --source-summary '用户再次纠正先堆选项的方式，要求先给有依据的推荐，并明确此偏好适用于其他项目。' --evidence correction --event-id 'isolated-project-advice-20260920:turn1:recommendation-first' --context-id 'isolated-project-advice-20260920' --apply\"",
+          "exit_code": 0
+        }
+      ],
+      "preferences": [
+        {
+          "key": "recommendation-first",
+          "scope": {
+            "kind": "global"
+          },
+          "category": "communication",
+          "value": "给方案建议时先给出推荐方案和依据，再补充其他选择。",
+          "when": "提供方案建议或比较可选方案时。",
+          "status": "promoted",
+          "active": true,
+          "created_at": "2026-09-20T02:45:19+00:00",
+          "updated_at": "2026-09-20T02:46:14+00:00",
+          "sources": [
+            {
+              "context": "de84becd64707e8a125d15d8da567180c9026bbaa2954bb578de55247e0d5291",
+              "evidence": "correction",
+              "summary": "用户纠正先罗列大量选项的建议方式，要求先说明推荐及依据。",
+              "at": "2026-09-20T02:45:19+00:00"
+            },
+            {
+              "context": "95b5e6b2c4cefc382f7d206c5f17236d83839fdeb0d22d448409f7576bbdddcd",
+              "evidence": "correction",
+              "summary": "用户再次纠正先堆选项的方式，要求先给有依据的推荐，并明确此偏好适用于其他项目。",
+              "at": "2026-09-20T02:46:14+00:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": 3,
+      "prompt": "请根据 PROJECT.md 比较方案 A 和 B，给出适合目前项目的建议。只读完成，不联网。",
+      "response": "**建议选择方案 A。** 根据 [PROJECT.md](PROJECT.md)，项目是下周交付的单机内部原型，没有跨设备同步需求。A 复用现有组件、预计两天完成，更符合当前范围，也能给验证和修复留出时间。\n\n| 比较项 | 方案 A | 方案 B |\n|---|---|---|\n| 实现方式 | 复用现有组件 | 引入新框架 |\n| 预计耗时 | 两天 | 七天 |\n| 交付余量 | 相对充足 | 排期更紧 |\n| 当前采用依据 | 能较快完成原型 | 文档未说明足以抵消额外耗时的收益 |\n\nB 比 A 多需五天；在当前需求下，没有充分理由承担这部分成本。若后续出现现有组件无法满足的明确需求，再评估 B。\n\n已按要求只读完成，未联网、未修改文件。",
+      "returncode": 0,
+      "commands": [
+        {
+          "command": "/bin/zsh -lc \"pwd; rg --files -g 'PROJECT.md' -g 'AGENTS.md' -g '*preference*' -g '\"'!node_modules'\"'\"",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc 'cat /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-yrfaf88b/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/SKILL.md'",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc 'cat PROJECT.md; for p in AGENTS.md ../AGENTS.md; do if [ -f \"$p\" ]; then cat \"$p\"; fi; done'",
+          "exit_code": 0
+        },
+        {
+          "command": "/bin/zsh -lc 'python3 /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-yrfaf88b/home/.codex/plugins/cache/codex-governance-harness-local/codex-governance-harness/0.2.0/skills/learn-user-preferences/scripts/preferences.py list --project /private/var/folders/z9/y6ttjbzs3rsfy6pbclrzm37h0000gn/T/harness-preference-canary-yrfaf88b/project'",
+          "exit_code": 0
+        }
+      ],
+      "preferences": [
+        {
+          "key": "recommendation-first",
+          "scope": {
+            "kind": "global"
+          },
+          "category": "communication",
+          "value": "给方案建议时先给出推荐方案和依据，再补充其他选择。",
+          "when": "提供方案建议或比较可选方案时。",
+          "status": "promoted",
+          "active": true,
+          "created_at": "2026-09-20T02:45:19+00:00",
+          "updated_at": "2026-09-20T02:46:14+00:00",
+          "sources": [
+            {
+              "context": "de84becd64707e8a125d15d8da567180c9026bbaa2954bb578de55247e0d5291",
+              "evidence": "correction",
+              "summary": "用户纠正先罗列大量选项的建议方式，要求先说明推荐及依据。",
+              "at": "2026-09-20T02:45:19+00:00"
+            },
+            {
+              "context": "95b5e6b2c4cefc382f7d206c5f17236d83839fdeb0d22d448409f7576bbdddcd",
+              "evidence": "correction",
+              "summary": "用户再次纠正先堆选项的方式，要求先给有依据的推荐，并明确此偏好适用于其他项目。",
+              "at": "2026-09-20T02:46:14+00:00"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -31,6 +31,7 @@ VALID_SKILLS = {
     "initialize-project-harness",
     "audit-governance-harness",
     "evolve-governance-harness",
+    "learn-user-preferences",
 }
 
 

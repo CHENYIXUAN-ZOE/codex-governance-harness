@@ -27,7 +27,8 @@
         "governed-project-work",
         "initialize-project-harness",
         "audit-governance-harness",
-        "evolve-governance-harness"
+        "evolve-governance-harness",
+        "learn-user-preferences"
       ]
     },
     "persistent_governance_artifacts": {

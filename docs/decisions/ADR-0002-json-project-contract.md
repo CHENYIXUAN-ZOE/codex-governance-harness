@@ -9,7 +9,7 @@
 
 ## 决策
 
-Standard 和 Assured 项目使用 `.harness/project.json`：
+Standard 和 Assured 项目在需要稳定机器接口时采用 `.harness/project.json`：
 
 1. `schema_version` 管理契约格式兼容性。
 2. `harness_version` 记录生成契约的 Harness 版本。
@@ -18,6 +18,8 @@ Standard 和 Assured 项目使用 `.harness/project.json`：
 5. JSON Schema 提供标准结构定义，Python 标准库验证器提供运行时安全与路径检查。
 6. Lite 不创建持久契约。
 7. Assured 必须声明风险权威来源和至少一个验证命令。
+
+2026-09-20 修订：本格式是可选适配器；已有项目指引充分时不强制创建。审计应区分未采用与已采用但损坏，并允许多个主题共用一份权威文件。保留 JSON 格式和已采用契约的验证要求。
 
 初始化默认只展示计划；只有显式 `--apply` 才创建缺失文件。现有契约不一致时拒绝覆盖。
 

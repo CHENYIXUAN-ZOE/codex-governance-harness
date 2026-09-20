@@ -52,12 +52,15 @@ def check() -> List[str]:
     try:
         manifest = json.loads((ROOT / "plugin/.codex-plugin/plugin.json").read_text())
         marketplace = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text())
-        eval_summary = json.loads((ROOT / "evals/results/0.1.0-summary.json").read_text())
         schema = json.loads((ROOT / "plugin/schemas/project-harness.schema.json").read_text())
     except (OSError, json.JSONDecodeError) as exc:
         return [*errors, f"JSON parse failure: {exc}"]
 
     version = (ROOT / "plugin/VERSION").read_text(encoding="utf-8").strip()
+    try:
+        eval_summary = json.loads((ROOT / f"evals/results/{version}-summary.json").read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        return [*errors, f"current evaluation summary cannot be read: {exc}"]
     if manifest.get("version") != version:
         errors.append("VERSION does not match plugin manifest version")
     marketplace_plugins = marketplace.get("plugins", [])
@@ -77,7 +80,7 @@ def check() -> List[str]:
     if eval_summary.get("gates", {}).get("status") != "passed":
         errors.append("evaluation summary gate is not passed")
 
-    package_entries = {path.name for path in PLUGIN_ROOT.iterdir()}
+    package_entries = {path.name for path in PLUGIN_ROOT.iterdir() if path.name != ".DS_Store"}
     if package_entries != ALLOWED_PACKAGE_ENTRIES:
         errors.append("installable plugin contains missing or unexpected top-level entries")
     for path in PLUGIN_ROOT.rglob("*"):

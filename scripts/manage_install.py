@@ -42,6 +42,7 @@ FORBIDDEN_PACKAGE_PARTS = {
     "docs",
     "tests",
 }
+IGNORED_METADATA_FILES = {".DS_Store"}
 
 
 class InstallError(RuntimeError):
@@ -181,7 +182,11 @@ def source_info() -> Dict[str, Any]:
     if not isinstance(marketplace_name, str) or not marketplace_name:
         raise InstallError("marketplace name is missing")
 
-    actual_entries = {path.name for path in PLUGIN_ROOT.iterdir()}
+    actual_entries = {
+        path.name
+        for path in PLUGIN_ROOT.iterdir()
+        if not (path.is_file() and path.name in IGNORED_METADATA_FILES)
+    }
     if actual_entries != ALLOWED_PACKAGE_ENTRIES:
         unexpected = sorted(actual_entries - ALLOWED_PACKAGE_ENTRIES)
         missing = sorted(ALLOWED_PACKAGE_ENTRIES - actual_entries)
@@ -210,6 +215,11 @@ def source_info() -> Dict[str, Any]:
         "plugin_root": str(PLUGIN_ROOT.resolve()),
         "global_text": global_text,
         "global_block": region["block"],
+        "metadata_files": sorted(
+            str(path.relative_to(PLUGIN_ROOT))
+            for path in PLUGIN_ROOT.rglob("*")
+            if path.is_file() and path.name in IGNORED_METADATA_FILES
+        ),
     }
 
 
@@ -398,6 +408,7 @@ def plan_install(
             "plugin": source["plugin_name"],
             "marketplace": source["marketplace_name"],
             "repository": source["marketplace_root"],
+            "metadata_files": source.get("metadata_files", []),
         },
         "actions": {
             "agents": "update"
@@ -672,10 +683,27 @@ def removal_plan(
         raise InstallError("unsupported installation state version")
     if Path(str(active.get("codex_home"))).resolve() != codex_home:
         raise InstallError("installation state belongs to a different CODEX_HOME")
-    if active.get("version") != source["version"]:
-        raise InstallError(
-            "installation state version differs from source; use its matching source"
-        )
+    if Path(str(active.get("repository"))).resolve() != Path(source["marketplace_root"]):
+        raise InstallError("installation state belongs to a different source repository")
+    for component, name_key in (("plugin", "plugin_name"), ("marketplace", "marketplace_name")):
+        recorded = active.get(component)
+        if not isinstance(recorded, dict) or recorded.get("name") != source[name_key]:
+            raise InstallError(f"installation state has a different {component} identity")
+
+    plugin = cli_state.get("plugin")
+    if plugin is not None:
+        if plugin.get("version") != active.get("version"):
+            raise InstallError("installed plugin differs from recorded version; refusing removal")
+        if active.get("version") != source["version"]:
+            raise InstallError(
+                "an older plugin is still installed; use its matching source to remove it "
+                "before installing this version (failure rollback needs the exact old package)"
+            )
+    marketplace = cli_state.get("marketplace")
+    if marketplace is not None:
+        configured_root = marketplace.get("marketplaceSource", {}).get("source")
+        if Path(str(configured_root)).resolve() != Path(source["marketplace_root"]):
+            raise InstallError("managed marketplace source has changed; refusing removal")
 
     agents_state = active.get("agents")
     if not isinstance(agents_state, dict):
@@ -687,6 +715,8 @@ def removal_plan(
     region = managed_region(current)
     if region is None:
         raise InstallError("managed global AGENTS block is missing; refusing removal")
+    if region["version"] != active.get("version"):
+        raise InstallError("managed global AGENTS version differs from recorded version")
     if sha256_text(region["block"]) != agents_state.get("installed_block_sha256"):
         raise InstallError("managed global AGENTS block changed; refusing removal")
 
@@ -709,6 +739,10 @@ def removal_plan(
     plugin_present = cli_state.get("plugin") is not None
     marketplace_present = cli_state.get("marketplace") is not None
     warnings: List[str] = []
+    if active.get("version") != source["version"]:
+        warnings.append(
+            f"removing version {active['version']} using its recorded ownership and block hash"
+        )
     if plugin_added and not plugin_present:
         warnings.append("managed plugin was already absent")
     if marketplace_added and not marketplace_present:
